@@ -1,9 +1,14 @@
 package com.pluralsight.Northwind.Traders.API4.models;
+
 public class Product {
     private Integer productId;
     private String productName;
     private int categoryId;
     private double unitPrice;
+
+    // no-arg constructor for JSON mapping
+    public Product() {
+    }
 
     public Product(Integer productId, String productName, int categoryId, double unitPrice) {
         this.productId = productId;
@@ -28,6 +33,9 @@ public class Product {
         this.productName = productName;
     }
 
+    public int getCategoryId() {
+        return categoryId;
+    }
 
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
@@ -39,12 +47,5 @@ public class Product {
 
     public void setUnitPrice(double unitPrice) {
         this.unitPrice = unitPrice;
-    }
-
-    public double getProductPrice(double productPrice) {
-        return double getProductPrice;
-    }
-
-    public void setId(int anInt) {
     }
 }

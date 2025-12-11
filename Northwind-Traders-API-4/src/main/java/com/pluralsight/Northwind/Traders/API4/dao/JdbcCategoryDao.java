@@ -1,4 +1,5 @@
 package com.pluralsight.Northwind.Traders.API4.dao;
+
 import com.pluralsight.Northwind.Traders.API4.models.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,12 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class jdbcCategoryDao implements CategoryDao {
+public class JdbcCategoryDao implements CategoryDao {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     @Autowired
-    public jdbcCategoryDao(DataSource dataSource) {
+    public JdbcCategoryDao(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -30,7 +31,7 @@ public class jdbcCategoryDao implements CategoryDao {
             while (resultSet.next()) {
                 int categoryID = resultSet.getInt("CategoryID");
                 String categoryName = resultSet.getString("CategoryName");
-                Category category = new Category(categoryID,categoryName);
+                Category category = new Category(categoryID, categoryName);
                 categories.add(category);
             }
         } catch (SQLException e) {
@@ -43,6 +44,7 @@ public class jdbcCategoryDao implements CategoryDao {
     @Override
     public Category getById(int id) {
         String sql = "SELECT CategoryID, CategoryName FROM Categories WHERE CategoryID = ?";
+
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
@@ -51,8 +53,7 @@ public class jdbcCategoryDao implements CategoryDao {
                 if (resultSet.next()) {
                     int categoryID = resultSet.getInt("CategoryID");
                     String categoryName = resultSet.getString("CategoryName");
-                    Category category = new Category(categoryID,categoryName);
-                    return category;
+                    return new Category(categoryID, categoryName);
                 }
             }
         } catch (SQLException e) {
@@ -64,7 +65,7 @@ public class jdbcCategoryDao implements CategoryDao {
 
     @Override
     public Category insert(Category category) {
-        String sql = "INSERT INTO categories (CategoryName) VALUES (?)";
+        String sql = "INSERT INTO Categories (CategoryName) VALUES (?)";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -74,15 +75,12 @@ public class jdbcCategoryDao implements CategoryDao {
 
             ResultSet keys = stmt.getGeneratedKeys();
             if (keys.next()) {
-                Integer categoryId = category.getCategoryId();
-               ; keys.getInt(1);
+                category.setCategoryId(keys.getInt(1));
             }
-
         } catch (Exception ex) {
             System.out.println("Error inserting category: " + ex.getMessage());
         }
 
         return category;
     }
-
 }

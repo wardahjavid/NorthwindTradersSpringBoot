@@ -4,6 +4,10 @@ public class Category {
     private Integer categoryId;
     private String categoryName;
 
+    // no-arg constructor required for JSON mapping
+    public Category() {
+    }
+
     public Category(Integer categoryId, String categoryName) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
