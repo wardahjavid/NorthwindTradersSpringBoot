@@ -85,7 +85,6 @@ public class JdbcCategoryDao implements CategoryDao {
         return category;
     }
 
-    // ✅ Exercise 5
     @Override
     public void update(int id, Category category) {
         String sql = "UPDATE Categories SET CategoryName = ? WHERE CategoryID = ?";

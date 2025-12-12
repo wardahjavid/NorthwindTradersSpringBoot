@@ -9,6 +9,5 @@ public interface CategoryDao {
     Category getById(int id);
     Category insert(Category category);
 
-    // ✅ Exercise 5
     void update(int id, Category category);
 }

@@ -94,7 +94,6 @@ public class JdbcProductDao implements ProductDao {
         return product;
     }
 
-    // ✅ Exercise 5
     @Override
     public void update(int id, Product product) {
         String sql = "UPDATE Products SET ProductName = ?, CategoryID = ?, UnitPrice = ? WHERE ProductID = ?";

@@ -34,7 +34,6 @@ public class CategoriesController {
         return categoryDao.insert(category);
     }
 
-    // ✅ Exercise 5: PUT
     @RequestMapping(path = "/categories/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateCategory(@PathVariable int id, @RequestBody Category category) {

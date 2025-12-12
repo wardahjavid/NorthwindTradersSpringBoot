@@ -8,7 +8,5 @@ public interface ProductDao {
     List<Product> getAll();
     Product getById(int id);
     Product insert(Product product);
-
-    // ✅ Exercise 5
     void update(int id, Product product);
 }

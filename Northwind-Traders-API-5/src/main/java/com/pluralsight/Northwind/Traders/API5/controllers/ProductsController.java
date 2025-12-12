@@ -34,7 +34,6 @@ public class ProductsController {
         return productDao.insert(product);
     }
 
-    // ✅ Exercise 5: PUT
     @RequestMapping(path = "/products/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProduct(@PathVariable int id, @RequestBody Product product) {
