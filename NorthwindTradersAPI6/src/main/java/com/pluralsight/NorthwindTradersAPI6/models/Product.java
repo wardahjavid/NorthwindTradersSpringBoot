@@ -1,10 +1,14 @@
 package com.pluralsight.NorthwindTradersAPI6.models;
 
 public class Product {
+
     private Integer productId;
     private String productName;
     private int categoryId;
     private double unitPrice;
+
+    public Product() {
+    }
 
     public Product(Integer productId, String productName, int categoryId, double unitPrice) {
         this.productId = productId;

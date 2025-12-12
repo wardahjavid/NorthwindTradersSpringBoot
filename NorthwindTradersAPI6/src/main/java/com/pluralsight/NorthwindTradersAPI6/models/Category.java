@@ -1,5 +1,7 @@
 package com.pluralsight.NorthwindTradersAPI6.models;
+
 public class Category {
+
     private Integer categoryId;
     private String categoryName;
 
