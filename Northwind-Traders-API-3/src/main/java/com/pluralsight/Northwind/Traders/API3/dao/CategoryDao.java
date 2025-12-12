@@ -1,4 +1,5 @@
 package com.pluralsight.Northwind.Traders.API3.dao;
+
 import com.pluralsight.Northwind.Traders.API3.model.Category;
 import java.util.List;
 

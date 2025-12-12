@@ -10,20 +10,20 @@ import java.util.List;
 @RestController
 public class ProductsController {
 
-    private final ProductDao dao;
+    private final ProductDao productDao;
 
     @Autowired
-    public ProductsController(ProductDao dao) {
-        this.dao = dao;
+    public ProductsController(ProductDao productDao) {
+        this.productDao = productDao;
     }
 
-    @GetMapping("/products")
-    public List<Product> getAll() {
-        return dao.getAll();
+    @RequestMapping(path = "/products", method = RequestMethod.GET)
+    public List<Product> getAllProducts() {
+        return productDao.getAll();
     }
 
-    @GetMapping("/products/{id}")
-    public Product getById(@PathVariable int id) {
-        return dao.getById(id);
+    @RequestMapping(path = "/products/{id}", method = RequestMethod.GET)
+    public Product getProductById(@PathVariable int id) {
+        return productDao.getById(id);
     }
 }
