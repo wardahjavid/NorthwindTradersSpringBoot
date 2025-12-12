@@ -28,7 +28,7 @@ public class ProductsController {
         return productDao.getById(productId);
     }
 
-    // POST – Exercise API 4
+
     @RequestMapping(path = "/products", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public Product addProduct(@RequestBody Product product) {

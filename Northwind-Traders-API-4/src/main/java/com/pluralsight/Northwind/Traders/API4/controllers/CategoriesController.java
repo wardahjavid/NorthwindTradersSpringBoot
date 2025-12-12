@@ -28,7 +28,6 @@ public class CategoriesController {
         return categoryDao.getById(categoryId);
     }
 
-    // POST – Exercise API 4
     @RequestMapping(path = "/categories", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public Category addCategory(@RequestBody Category category) {
