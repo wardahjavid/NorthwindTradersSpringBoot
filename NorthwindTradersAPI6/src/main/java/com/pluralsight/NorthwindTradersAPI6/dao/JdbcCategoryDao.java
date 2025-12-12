@@ -93,7 +93,7 @@ public class JdbcCategoryDao implements CategoryDao {
         }
     }
 
-    // ✅ Exercise 6
+
     @Override
     public void delete(int id) {
         String sql = "DELETE FROM Categories WHERE CategoryID = ?";

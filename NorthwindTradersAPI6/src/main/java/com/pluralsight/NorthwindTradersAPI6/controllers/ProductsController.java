@@ -28,20 +28,21 @@ public class ProductsController {
     }
 
     @RequestMapping(path = "/products", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.CREATED)
     public Product addProduct(@RequestBody Product product) {
         return productDao.insert(product);
     }
 
     @RequestMapping(path = "/products/{productId}", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProduct(@PathVariable int productId, @RequestBody Product product) {
         productDao.update(productId, product);
     }
 
+    // ✅ Exercise 6 DELETE (fixed)
     @RequestMapping(path = "/products/{id}", method = RequestMethod.DELETE)
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteProduct(@PathVariable int id, AbstractStringBuilder dao) {
-        dao.delete(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProduct(@PathVariable int id) {
+        productDao.delete(id);
     }
-
 }
