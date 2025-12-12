@@ -1,5 +1,5 @@
 package com.pluralsight.Northwind.Traders.API5.dao;
-import com.pluralsight.Northwind.Traders.API5.dao.ProductDao;
+
 import com.pluralsight.Northwind.Traders.API5.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,19 +22,19 @@ public class JdbcProductDao implements ProductDao {
     @Override
     public List<Product> getAll() {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT * FROM Products";
+        String sql = "SELECT ProductID, ProductName, CategoryID, UnitPrice FROM Products";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+             ResultSet rs = statement.executeQuery()) {
 
-            while (resultSet.next()) {
-                int productID = resultSet.getInt("ProductID");
-                String productName = resultSet.getString("ProductName");
-                int categoryID = resultSet.getInt("CategoryID");
-                double unitPrice = resultSet.getDouble("UnitPrice");
-                Product product = new Product();
-                products.add(product);
+            while (rs.next()) {
+                int id = rs.getInt("ProductID");
+                String name = rs.getString("ProductName");
+                int categoryId = rs.getInt("CategoryID");
+                double price = rs.getDouble("UnitPrice");
+
+                products.add(new Product(id, name, categoryId, price));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -45,19 +45,21 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public Product getById(int id) {
-        String sql = "SELECT * FROM Products WHERE ProductID = ?";
+        String sql = "SELECT ProductID, ProductName, CategoryID, UnitPrice FROM Products WHERE ProductID = ?";
+
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, id);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    int productID = resultSet.getInt("ProductID");
-                    String productName = resultSet.getString("ProductName");
-                    int categoryID = resultSet.getInt("CategoryID");
-                    double unitPrice = resultSet.getDouble("UnitPrice");
-                    Product product = new Product();
-                    return product;
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    int pid = rs.getInt("ProductID");
+                    String name = rs.getString("ProductName");
+                    int categoryId = rs.getInt("CategoryID");
+                    double price = rs.getDouble("UnitPrice");
+
+                    return new Product(pid, name, categoryId, price);
                 }
             }
         } catch (SQLException e) {
@@ -78,45 +80,36 @@ public class JdbcProductDao implements ProductDao {
             statement.setInt(2, product.getCategoryId());
             statement.setDouble(3, product.getUnitPrice());
 
-            int affectedRows = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (affectedRows == 0) {
-                throw new SQLException("Creating product failed, no rows affected.");
-            }
-
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    int generatedId = generatedKeys.getInt(1);
-                    product.setProductId(generatedId);
-                } else {
-                    throw new SQLException("Creating product failed, no ID obtained.");
-                }
-
-            }
-            @Override
-            public void update(int id, Product product) {
-                String sql = "UPDATE products " +
-                        "SET ProductName = ?, CategoryID = ?, UnitPrice = ? " +
-                        "WHERE ProductID = ?";
-
-                try (Connection conn = dataSource.getConnection();
-                     PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-                    stmt.setString(1, product.getName());
-                    stmt.setInt(2, product.getCategoryId());
-                    stmt.setDouble(3, product.getPrice());
-                    stmt.setInt(4, id);
-
-                    stmt.executeUpdate();
-
-                } catch (Exception ex) {
-                    System.out.println("Error updating product: " + ex.getMessage());
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (keys.next()) {
+                    product.setProductId(keys.getInt(1));
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return product;
     }
+
+    // ✅ Exercise 5
+    @Override
+    public void update(int id, Product product) {
+        String sql = "UPDATE Products SET ProductName = ?, CategoryID = ?, UnitPrice = ? WHERE ProductID = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, product.getProductName());
+            statement.setInt(2, product.getCategoryId());
+            statement.setDouble(3, product.getUnitPrice());
+            statement.setInt(4, id);
+
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}

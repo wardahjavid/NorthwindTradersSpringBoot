@@ -1,5 +1,5 @@
 package com.pluralsight.Northwind.Traders.API5.dao;
-import com.pluralsight.Northwind.Traders.API5.dao.CategoryDao;
+
 import com.pluralsight.Northwind.Traders.API5.models.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,17 +22,16 @@ public class JdbcCategoryDao implements CategoryDao {
     @Override
     public List<Category> getAll() {
         List<Category> categories = new ArrayList<>();
-        String sql = "SELECT * FROM Categories";
+        String sql = "SELECT CategoryID, CategoryName FROM Categories";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+             ResultSet rs = statement.executeQuery()) {
 
-            while (resultSet.next()) {
-                int categoryID = resultSet.getInt("CategoryID");
-                String categoryName = resultSet.getString("CategoryName");
-                Category category = new Category(categoryID, categoryName);
-                categories.add(category);
+            while (rs.next()) {
+                int id = rs.getInt("CategoryID");
+                String name = rs.getString("CategoryName");
+                categories.add(new Category(id, name));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -43,17 +42,18 @@ public class JdbcCategoryDao implements CategoryDao {
 
     @Override
     public Category getById(int id) {
-        String sql = "SELECT * FROM Categories WHERE CategoryID = ?";
+        String sql = "SELECT CategoryID, CategoryName FROM Categories WHERE CategoryID = ?";
+
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, id);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    int categoryID = resultSet.getInt("CategoryID");
-                    String categoryName = resultSet.getString("CategoryName");
-                    Category category = new Category(categoryID, categoryName);
-                    return category;
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    int cid = rs.getInt("CategoryID");
+                    String name = rs.getString("CategoryName");
+                    return new Category(cid, name);
                 }
             }
         } catch (SQLException e) {
@@ -71,40 +71,13 @@ public class JdbcCategoryDao implements CategoryDao {
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, category.getCategoryName());
+            statement.executeUpdate();
 
-            int affectedRows = statement.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SQLException("Creating category failed, no rows affected.");
-            }
-
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    int generatedId = generatedKeys.getInt(1);
-                    category.setCategoryId(generatedId);
-                } else {
-                    throw new SQLException("Creating category failed, no ID obtained.");
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (keys.next()) {
+                    category.setCategoryId(keys.getInt(1));
                 }
             }
-            @Override
-            public void update(int id, Category category) {
-                String sql = "UPDATE categories " +
-                        "SET CategoryName = ? " +
-                        "WHERE CategoryID = ?";
-
-                try (Connection conn = dataSource.getConnection();
-                     PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-                    stmt.setString(1, category.getCategoryName());
-                    stmt.setInt(2, id);
-
-                    stmt.executeUpdate();
-
-                } catch (Exception ex) {
-                    System.out.println("Error updating category: " + ex.getMessage());
-                }
-            }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -112,8 +85,20 @@ public class JdbcCategoryDao implements CategoryDao {
         return category;
     }
 
+    // ✅ Exercise 5
     @Override
     public void update(int id, Category category) {
+        String sql = "UPDATE Categories SET CategoryName = ? WHERE CategoryID = ?";
 
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, category.getCategoryName());
+            statement.setInt(2, id);
+
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

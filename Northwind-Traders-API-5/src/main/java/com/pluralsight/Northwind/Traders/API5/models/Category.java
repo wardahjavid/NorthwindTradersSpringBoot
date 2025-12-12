@@ -4,6 +4,9 @@ public class Category {
     private Integer categoryId;
     private String categoryName;
 
+    public Category() {
+    }
+
     public Category(Integer categoryId, String categoryName) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
@@ -25,4 +28,3 @@ public class Category {
         this.categoryName = categoryName;
     }
 }
-

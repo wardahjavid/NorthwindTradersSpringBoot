@@ -1,4 +1,5 @@
 package com.pluralsight.Northwind.Traders.API5.controllers;
+
 import com.pluralsight.Northwind.Traders.API5.dao.ProductDao;
 import com.pluralsight.Northwind.Traders.API5.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @RestController
 public class ProductsController {
+
     private final ProductDao productDao;
 
     @Autowired
@@ -27,14 +29,15 @@ public class ProductsController {
     }
 
     @RequestMapping(path = "/products", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.CREATED)
     public Product addProduct(@RequestBody Product product) {
         return productDao.insert(product);
     }
 
+    // ✅ Exercise 5: PUT
     @RequestMapping(path = "/products/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProduct(@PathVariable int id, @RequestBody Product product, Runtime.Version dao) {
-        dao.update();
+    public void updateProduct(@PathVariable int id, @RequestBody Product product) {
+        productDao.update(id, product);
     }
 }
