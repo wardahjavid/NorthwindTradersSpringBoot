@@ -1,7 +1,6 @@
 package com.pluralsight.NorthwindTradersAPI6.dao;
 
 import com.pluralsight.NorthwindTradersAPI6.models.Category;
-
 import java.util.List;
 
 public interface CategoryDao {
@@ -9,6 +8,5 @@ public interface CategoryDao {
     Category getById(int id);
     Category insert(Category category);
     void update(int id, Category category);
-
-    void delete(int id);    // NEW
+    void delete(int id);   // Exercise 6
 }

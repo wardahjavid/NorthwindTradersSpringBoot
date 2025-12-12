@@ -1,8 +1,6 @@
 package com.pluralsight.NorthwindTradersAPI6.dao;
 
-import com.pluralsight.NorthwindTradersAPI6.dao.CategoryDao;
 import com.pluralsight.NorthwindTradersAPI6.models.Category;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -11,11 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class JdbcCategoryDao implements ICategoryDao {
+public class JdbcCategoryDao implements CategoryDao {
 
     private final DataSource dataSource;
 
-    @Autowired
     public JdbcCategoryDao(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -23,105 +20,90 @@ public class JdbcCategoryDao implements ICategoryDao {
     @Override
     public List<Category> getAll() {
         List<Category> categories = new ArrayList<>();
-        String sql = "SELECT * FROM Categories";
+        String sql = "SELECT CategoryID, CategoryName FROM Categories";
 
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement s = c.prepareStatement(sql);
+             ResultSet rs = s.executeQuery()) {
 
-            while (resultSet.next()) {
-                int categoryID = resultSet.getInt("CategoryID");
-                String categoryName = resultSet.getString("CategoryName");
-                Category category = new Category(categoryID, categoryName);
-                categories.add(category);
+            while (rs.next()) {
+                categories.add(
+                        new Category(
+                                rs.getInt("CategoryID"),
+                                rs.getString("CategoryName")
+                        )
+                );
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return categories;
     }
 
     @Override
     public Category getById(int id) {
-        String sql = "SELECT * FROM Categories WHERE CategoryID = ?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        String sql = "SELECT CategoryID, CategoryName FROM Categories WHERE CategoryID = ?";
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement s = c.prepareStatement(sql)) {
 
-            statement.setInt(1, id);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    int categoryID = resultSet.getInt("CategoryID");
-                    String categoryName = resultSet.getString("CategoryName");
-                    Category category = new Category(categoryID, categoryName);
-                    return category;
-                }
+            s.setInt(1, id);
+            ResultSet rs = s.executeQuery();
+            if (rs.next()) {
+                return new Category(
+                        rs.getInt("CategoryID"),
+                        rs.getString("CategoryName")
+                );
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
     @Override
     public Category insert(Category category) {
         String sql = "INSERT INTO Categories (CategoryName) VALUES (?)";
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement s = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            s.setString(1, category.getCategoryName());
+            s.executeUpdate();
 
-            statement.setString(1, category.getCategoryName());
-
-            int affectedRows = statement.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SQLException("Creating category failed, no rows affected.");
-            }
-
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    int generatedId = generatedKeys.getInt(1);
-                    category.setCategoryId(generatedId);
-                } else {
-                    throw new SQLException("Creating category failed, no ID obtained.");
-                }
+            ResultSet keys = s.getGeneratedKeys();
+            if (keys.next()) {
+                category.setCategoryId(keys.getInt(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return category;
     }
 
     @Override
     public void update(int id, Category category) {
         String sql = "UPDATE Categories SET CategoryName = ? WHERE CategoryID = ?";
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement s = c.prepareStatement(sql)) {
 
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setString(1, category.getCategoryName());
-            statement.setInt(2, id);
-
-            statement.executeUpdate();
+            s.setString(1, category.getCategoryName());
+            s.setInt(2, id);
+            s.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    // ✅ Exercise 6
     @Override
     public void delete(int id) {
-        String sql = "DELETE FROM categories WHERE CategoryID = ?";
+        String sql = "DELETE FROM Categories WHERE CategoryID = ?";
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement s = c.prepareStatement(sql)) {
 
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-
-        } catch (Exception ex) {
-            System.out.println("Error deleting category: " + ex.getMessage());
+            s.setInt(1, id);
+            s.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
